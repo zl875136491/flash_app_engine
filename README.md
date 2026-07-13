@@ -1,7 +1,8 @@
-# flash_app_engine
-FlashApp Engine 是一个面向公司内部的“口述即部署、所见即所得”的轻量级云计算平台
+# Product Requirement Document (PRD) - FlashApp Engine
 
-用户通过手机 PWA 端以语音为主、图片为辅的方式表达应用需求，系统通过全自动的 AI 编排流水线，在秒级内完成“需求拆解 -> 全栈编码 -> Docker 沙箱构建 -> 自动化验证 -> 独立 Web 服务暴露”的全链路闭环。旨在忽略繁琐的版本管理与代码审查，一切为了极速将想法转化为可分享、可体验的真实 Web 应用。
+## 1. 业务目标与愿景 (Vision & Objectives)
+
+FlashApp Engine 是一个面向公司内部的“口述即部署、所见即所得”的轻量级云计算平台。用户通过手机 PWA 端以语音为主、图片为辅的方式表达应用需求，系统通过全自动的 AI 编排流水线，在秒级内完成“需求拆解 -> 全栈编码 -> Docker 沙箱构建 -> 自动化验证 -> 独立 Web 服务暴露”的全链路闭环。旨在忽略繁琐的版本管理与代码审查，一切为了极速将想法转化为可分享、可体验的真实 Web 应用。
 
 ---
 
@@ -51,7 +52,7 @@ FlashApp Engine 是一个面向公司内部的“口述即部署、所见即所�
 
 
 ## 3. 主要模型定义参考
-
+该部分仅为初期模型定义, 仅作参考, 如果后续有功能调整或者需求不满足的部分, 需要进行调整. 后续将使用 AI 辅助生成模型定义.
 ```python
 class AllocatedResources(BaseModel):
     frontend: Optional[bool] = True
@@ -139,3 +140,60 @@ class Task(Document):
 编译期自愈：当 Dockerfile 构建失败时，后端捕获 docker build 错误日志，直接喂给 Seed-Coder 结合原始代码进行 1 次自愈修正，修正失败再转入 Failed 状态。
 
 运行期检查：容器拉起后，系统自动向暴露的端口发送 HTTP 请求。若返回非 200 状态码，自动读取容器后 50 行日志（docker logs --tail 50）触发修复流程，重新生成并覆盖部署。
+```
+
+## 6. 实现相关
+### 6.1 核心特性
+PWA 移动端优先： 专为手机端浏览器深度优化，支持“添加到主屏幕”作为原生 App 体验，不用考虑 PC 端大屏布局, 禁用缩放, 仅需要内容展示的部分支持滚动.
+### 6.2 技术栈
+本项目为一个 Monorepo（前后端代码在同一个仓库中管理），保证了极高的开发与维护效率。
+
+🎨 前端 (Frontend)
+核心框架： React v19.x
+组件库： shadcn/ui, tailwindcss V4.3
+构建工具： Vite + vite-plugin-pwa（实现渐进式 Web 应用）
+运行环境： Node.js v24.13.0
+主题方案: 依照前端项目中的 src/index.css 为唯一配色方案
+
+⚙️ 后端 (Backend)
+核心框架： Python v3.12.10 + FastAPI
+数据库： MongoDB
+ODM (对象文档映射)： Beanie (基于 Pydantic 的异步 MongoDB 驱动)
+异步引擎： Celery
+
+### 6.3 代码结构
+```
+├── backend
+│   ├── backend.sh
+│   ├── main.py
+│   ├── requirements.txt
+│   ├── run.sh
+│   └── scripts
+└── src
+    ├── __init__.py
+    ├── api
+    ├── configs
+    ├── core
+    ├── modules
+    └── utils
+├── docs
+│   ├── auth_users.md
+│   └── local_models.md
+├── frontend
+│   ├── assets
+│   ├── components.json
+│   ├── dist
+│   ├── index.html
+│   ├── node_modules
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── public
+│   ├── scripts
+│   ├── src
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   └── vite.config.ts
+├── LICENSE
+└── README.md
+```
+
