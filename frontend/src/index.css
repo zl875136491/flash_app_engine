@@ -1,0 +1,492 @@
+@import "tailwindcss";
+
+html,
+body,
+#root {
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --mobile-header-height: 44px;
+  --mobile-tabbar-height: 50px;
+  --background: oklch(1.0000 0 0);
+  --foreground: oklch(0.2181 0.0060 156.6981);
+  --card: oklch(0.9372 0.0042 157.1743);
+  --card-foreground: oklch(0.2181 0.0060 156.6981);
+  --popover: oklch(1.0000 0 0);
+  --popover-foreground: oklch(0.2181 0.0060 156.6981);
+  --primary: oklch(0.7526 0.1512 153.7509);
+  --primary-foreground: oklch(1.0000 0 0);
+  --secondary: oklch(0.9414 0.0533 156.0560);
+  --secondary-foreground: oklch(0.3406 0.0510 156.3206);
+  --muted: oklch(0.9243 0.0050 164.9997);
+  --muted-foreground: oklch(0.4869 0.0030 164.9832);
+  --accent: oklch(0.7986 0.1471 151.8874);
+  --accent-foreground: oklch(1.0000 0 0);
+  --destructive: oklch(0.5491 0.1897 294.7021);
+  --destructive-foreground: oklch(1.0000 0 0);
+  --border: oklch(0.8916 0.0042 157.1685);
+  --input: oklch(0.8916 0.0042 157.1685);
+  --ring: oklch(0.7526 0.1512 153.7509);
+  --chart-1: oklch(0.7526 0.1512 153.7509);
+  --chart-2: oklch(0.8383 0.1367 150.0691);
+  --chart-3: oklch(0.9117 0.0842 148.3570);
+  --chart-4: oklch(0.4936 0.0816 154.2104);
+  --chart-5: oklch(0.8755 0.1126 148.7446);
+  --sidebar: oklch(0.5960 0.1450 163.2250);
+  --sidebar-foreground: oklch(0.9670 0.0010 286.3750);
+  --sidebar-primary: oklch(0.7526 0.1512 153.7509);
+  --sidebar-primary-foreground: oklch(1.0000 0 0);
+  --sidebar-accent: oklch(0.9414 0.0533 156.0560);
+  --sidebar-accent-foreground: oklch(0.7526 0.1512 153.7509);
+  --sidebar-border: oklch(0.8916 0.0042 157.1685);
+  --sidebar-ring: oklch(0.7526 0.1512 153.7509);
+  --font-sans: Geologica, ui-sans-serif, sans-serif, system-ui;
+  --font-serif: Inter, ui-sans-serif, sans-serif, system-ui;
+  --font-mono: Inter, ui-sans-serif, sans-serif, system-ui;
+  --radius: 0.75rem;
+  --shadow-x: 0px;
+  --shadow-y: 4px;
+  --shadow-blur: 15px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0;
+  --shadow-color: #000000;
+  --shadow-2xs: 0px 4px 15px 0px hsl(0 0% 0% / 0.00);
+  --shadow-xs: 0px 4px 15px 0px hsl(0 0% 0% / 0.00);
+  --shadow-sm: 0px 4px 15px 0px hsl(0 0% 0% / 0.00), 0px 1px 2px -1px hsl(0 0% 0% / 0.00);
+  --shadow: 0px 4px 15px 0px hsl(0 0% 0% / 0.00), 0px 1px 2px -1px hsl(0 0% 0% / 0.00);
+  --shadow-md: 0px 4px 15px 0px hsl(0 0% 0% / 0.00), 0px 2px 4px -1px hsl(0 0% 0% / 0.00);
+  --shadow-lg: 0px 4px 15px 0px hsl(0 0% 0% / 0.00), 0px 4px 6px -1px hsl(0 0% 0% / 0.00);
+  --shadow-xl: 0px 4px 15px 0px hsl(0 0% 0% / 0.00), 0px 8px 10px -1px hsl(0 0% 0% / 0.00);
+  --shadow-2xl: 0px 4px 15px 0px hsl(0 0% 0% / 0.00);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+}
+
+.dark {
+  --background: oklch(0 0 0);
+  --foreground: oklch(1.0000 0 0);
+  --card: oklch(0.2393 0 0);
+  --card-foreground: oklch(0.9356 0.0108 158.8367);
+  --popover: oklch(0 0 0);
+  --popover-foreground: oklch(0.9356 0.0108 158.8367);
+  --primary: oklch(0.7911 0.1497 152.0110);
+  --primary-foreground: oklch(0.2478 0 0);
+  --secondary: oklch(0.2264 0 0);
+  --secondary-foreground: oklch(0.9414 0.0533 156.0560);
+  --muted: oklch(0.2239 0.0175 155.5580);
+  --muted-foreground: oklch(0.6703 0.0090 156.9887);
+  --accent: oklch(0.4363 0.0646 153.9890);
+  --accent-foreground: oklch(0.8755 0.1126 148.7446);
+  --destructive: oklch(0.5570 0.2146 296.6485);
+  --destructive-foreground: oklch(1.0000 0 0);
+  --border: oklch(0.3407 0 0);
+  --input: oklch(0.4276 0 0);
+  --ring: oklch(0.7911 0.1497 152.0110);
+  --chart-1: oklch(0.7911 0.1497 152.0110);
+  --chart-2: oklch(0.3406 0.0510 156.3206);
+  --chart-3: oklch(0.8755 0.1126 148.7446);
+  --chart-4: oklch(0.7712 0.1302 169.4731);
+  --chart-5: oklch(0.4936 0.0816 154.2104);
+  --sidebar: oklch(0.0969 0 0);
+  --sidebar-foreground: oklch(0.9356 0.0108 158.8367);
+  --sidebar-primary: oklch(0.7911 0.1497 152.0110);
+  --sidebar-primary-foreground: oklch(1.0000 0 0);
+  --sidebar-accent: oklch(0.3136 0.0377 155.6304);
+  --sidebar-accent-foreground: oklch(0.8755 0.1126 148.7446);
+  --sidebar-border: oklch(0.2340 0.0082 153.2663);
+  --sidebar-ring: oklch(0.7911 0.1497 152.0110);
+  --font-sans: Geologica, ui-sans-serif, sans-serif, system-ui;
+  --font-serif: Inter, ui-sans-serif, sans-serif, system-ui;
+  --font-mono: Inter, ui-sans-serif, sans-serif, system-ui;
+  --radius: 0.75rem;
+  --shadow-x: 0px;
+  --shadow-y: 0px;
+  --shadow-blur: 30px;
+  --shadow-spread: -10px;
+  --shadow-opacity: 0;
+  --shadow-color: #66d68a;
+  --shadow-2xs: 0px 0px 30px -10px hsl(139.2857 57.7320% 61.9608% / 0.00);
+  --shadow-xs: 0px 0px 30px -10px hsl(139.2857 57.7320% 61.9608% / 0.00);
+  --shadow-sm: 0px 0px 30px -10px hsl(139.2857 57.7320% 61.9608% / 0.00), 0px 1px 2px -11px hsl(139.2857 57.7320% 61.9608% / 0.00);
+  --shadow: 0px 0px 30px -10px hsl(139.2857 57.7320% 61.9608% / 0.00), 0px 1px 2px -11px hsl(139.2857 57.7320% 61.9608% / 0.00);
+  --shadow-md: 0px 0px 30px -10px hsl(139.2857 57.7320% 61.9608% / 0.00), 0px 2px 4px -11px hsl(139.2857 57.7320% 61.9608% / 0.00);
+  --shadow-lg: 0px 0px 30px -10px hsl(139.2857 57.7320% 61.9608% / 0.00), 0px 4px 6px -11px hsl(139.2857 57.7320% 61.9608% / 0.00);
+  --shadow-xl: 0px 0px 30px -10px hsl(139.2857 57.7320% 61.9608% / 0.00), 0px 8px 10px -11px hsl(139.2857 57.7320% 61.9608% / 0.00);
+  --shadow-2xl: 0px 0px 30px -10px hsl(139.2857 57.7320% 61.9608% / 0.00);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-muted/30 text-foreground antialiased;
+  }
+}
+
+/* 代码高亮主题：使用 highlight.js 的标准 GitHub 语法高亮配色（按语言 token 上色）
+   - 明亮主题：默认（light）
+   - 暗黑主题：仅在 .dark 下生效
+   说明：这里刻意不引用系统主题变量，避免“用主题色混色”导致的非标准语法配色。 */
+pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em;
+}
+code.hljs {
+  padding: 3px 5px;
+}
+
+/* GitHub (light) */
+.hljs {
+  color: #24292e;
+  background: #ffffff;
+}
+.hljs-doctag,
+.hljs-keyword,
+.hljs-meta .hljs-keyword,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-variable.language_ {
+  color: #d73a49;
+}
+.hljs-title,
+.hljs-title.class_,
+.hljs-title.class_.inherited__,
+.hljs-title.function_ {
+  color: #6f42c1;
+}
+.hljs-attr,
+.hljs-attribute,
+.hljs-literal,
+.hljs-meta,
+.hljs-number,
+.hljs-operator,
+.hljs-variable,
+.hljs-selector-attr,
+.hljs-selector-class,
+.hljs-selector-id {
+  color: #005cc5;
+}
+.hljs-regexp,
+.hljs-string,
+.hljs-meta .hljs-string {
+  color: #032f62;
+}
+.hljs-built_in,
+.hljs-symbol {
+  color: #e36209;
+}
+.hljs-comment,
+.hljs-code,
+.hljs-formula {
+  color: #6a737d;
+}
+.hljs-name,
+.hljs-quote,
+.hljs-selector-tag,
+.hljs-selector-pseudo {
+  color: #22863a;
+}
+.hljs-subst {
+  color: #24292e;
+}
+.hljs-section {
+  color: #005cc5;
+  font-weight: bold;
+}
+.hljs-bullet {
+  color: #735c0f;
+}
+.hljs-emphasis {
+  color: #24292e;
+  font-style: italic;
+}
+.hljs-strong {
+  color: #24292e;
+  font-weight: bold;
+}
+.hljs-addition {
+  color: #22863a;
+  background-color: #f0fff4;
+}
+.hljs-deletion {
+  color: #b31d28;
+  background-color: #ffeef0;
+}
+
+/* GitHub Dark（仅暗黑模式覆盖 .hljs 颜色） */
+.dark .hljs {
+  color: #c9d1d9;
+  background: #0d1117;
+}
+.dark .hljs-doctag,
+.dark .hljs-keyword,
+.dark .hljs-meta .hljs-keyword,
+.dark .hljs-template-tag,
+.dark .hljs-template-variable,
+.dark .hljs-type,
+.dark .hljs-variable.language_ {
+  color: #ff7b72;
+}
+.dark .hljs-title,
+.dark .hljs-title.class_,
+.dark .hljs-title.class_.inherited__,
+.dark .hljs-title.function_ {
+  color: #d2a8ff;
+}
+.dark .hljs-attr,
+.dark .hljs-attribute,
+.dark .hljs-literal,
+.dark .hljs-meta,
+.dark .hljs-number,
+.dark .hljs-operator,
+.dark .hljs-variable,
+.dark .hljs-selector-attr,
+.dark .hljs-selector-class,
+.dark .hljs-selector-id {
+  color: #79c0ff;
+}
+.dark .hljs-regexp,
+.dark .hljs-string,
+.dark .hljs-meta .hljs-string {
+  color: #a5d6ff;
+}
+.dark .hljs-built_in,
+.dark .hljs-symbol {
+  color: #ffa657;
+}
+.dark .hljs-comment,
+.dark .hljs-code,
+.dark .hljs-formula {
+  color: #8b949e;
+}
+.dark .hljs-name,
+.dark .hljs-quote,
+.dark .hljs-selector-tag,
+.dark .hljs-selector-pseudo {
+  color: #7ee787;
+}
+.dark .hljs-subst {
+  color: #c9d1d9;
+}
+.dark .hljs-section {
+  color: #1f6feb;
+  font-weight: bold;
+}
+.dark .hljs-bullet {
+  color: #f2cc60;
+}
+.dark .hljs-emphasis {
+  color: #c9d1d9;
+  font-style: italic;
+}
+.dark .hljs-strong {
+  color: #c9d1d9;
+  font-weight: bold;
+}
+.dark .hljs-addition {
+  color: #aff5b4;
+  background-color: #033a16;
+}
+.dark .hljs-deletion {
+  color: #ffdcd7;
+  background-color: #67060c;
+}
+
+/* 文档页滚动条：不滚动时隐藏，使用主色，且预留轨道避免布局抖动 */
+.docs-scroll {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.docs-scroll:hover,
+.docs-scroll:focus-within {
+  scrollbar-color: var(--primary) transparent;
+}
+.docs-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.docs-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.docs-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+}
+.docs-scroll:hover::-webkit-scrollbar-thumb,
+.docs-scroll:focus-within::-webkit-scrollbar-thumb {
+  background: var(--primary);
+}
+.docs-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+  opacity: 1;
+}
+
+/* 存储桶复制拓扑：悬停边属性卡片需叠在节点之上（RF 默认 edgelabel 层在节点之下） */
+.replicate-bucket-flow .react-flow__edgelabel-renderer {
+  z-index: 1000;
+}
+
+/* React Flow 左下角控件：跟随主题变量（默认样式偏浅/固定色） */
+.replicate-bucket-flow .react-flow__controls {
+  box-shadow: 0 1px 4px oklch(0 0 0 / 0.08);
+}
+.replicate-bucket-flow .react-flow__controls-button {
+  background: var(--card);
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border);
+  fill: var(--foreground);
+}
+.replicate-bucket-flow .react-flow__controls-button:hover {
+  background: var(--muted);
+}
+.replicate-bucket-flow .react-flow__controls-button:disabled {
+  opacity: 0.45;
+}
+.replicate-bucket-flow .react-flow__controls-button:last-child {
+  border-bottom: none;
+}
+
+/* 小地图：背景与节点块随主题 */
+.replicate-bucket-flow .react-flow__minimap {
+  background-color: var(--card) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* 四向连接桩：默认较淡，悬停/编辑时更易对准 */
+.replicate-bucket-flow .replicate-quad-handle {
+  opacity: 0.22;
+  width: 10px !important;
+  height: 10px !important;
+  min-width: 10px !important;
+  min-height: 10px !important;
+}
+.replicate-bucket-flow .replicate-quad-handle:hover {
+  opacity: 0.55 !important;
+}
+
+.triplan-map-marker-wrap {
+  background: transparent;
+  border: none;
+}
+
+.triplan-map-marker-wrap.is-selected .triplan-map-marker {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 3px rgb(94 201 146 / 0.45);
+}
+
+.triplan-map-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  border: 2px solid white;
+  background: white;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.18);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.triplan-map-marker--destination {
+  background: rgb(94 201 146);
+  color: white;
+  font-size: 18px;
+}
+
+.triplan-map-marker--hotel,
+.triplan-map-marker--attraction,
+.triplan-map-marker--transport {
+  font-size: 18px;
+}
+
+.triplan-map-marker--avatar {
+  overflow: hidden;
+  padding: 0;
+  background: var(--background, white);
+}
+
+.triplan-map-marker--avatar img,
+.triplan-map-marker--avatar span {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgb(94 201 146);
+}
+
+.leaflet-container {
+  font-family: inherit;
+  background: #dbeafe;
+}
