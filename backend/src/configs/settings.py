@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     celery_broker_url: str = "redis://localhost:6379/0"
     celery_result_backend: str = "redis://localhost:6379/1"
     celery_task_always_eager: bool = False
+    # 无内网模型时用于编排冒烟；生产应保持 false
+    ai_mock: bool = False
 
     qwen_base_url: str = "http://10.8.136.35:8081"
     seedcoder_base_url: str = "http://10.8.136.35:8881"
