@@ -70,3 +70,12 @@ class TaskDetail(TaskSummary):
 class TaskListResponse(BaseModel):
     items: list[TaskSummary]
     total: int
+    quota: Optional["QuotaOut"] = None
+
+
+class QuotaOut(BaseModel):
+    """用户同时运行中的应用额度。"""
+
+    limit: int = Field(..., description="同时运行上限")
+    used: int = Field(..., description="当前运行中（Success）数量")
+    remaining: int = Field(..., description="剩余可启动名额")

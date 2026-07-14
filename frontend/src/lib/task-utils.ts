@@ -8,6 +8,7 @@ export const STAGE_LABEL: Record<Stage, string> = {
   Verifying: "验证中",
   Success: "已部署",
   Failed: "失败",
+  Stopped: "已停止",
 };
 
 export const ACTIVE_STAGES: Stage[] = [
@@ -37,4 +38,8 @@ export function taskTitle(raw: string | null | undefined, id: string): string {
   const text = (raw || "").trim();
   if (!text) return `任务 ${id.slice(-6)}`;
   return text.length > 36 ? `${text.slice(0, 36)}…` : text;
+}
+
+export function formatQuota(used: number, limit: number): string {
+  return `运行中 ${used}/${limit}`;
 }

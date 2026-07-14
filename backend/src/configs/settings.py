@@ -50,6 +50,8 @@ class Settings(BaseSettings):
     generated_code_root: str = "/tmp/flashapp/tasks"
     upload_root: str = "/tmp/flashapp/uploads"
     upload_max_bytes: int = 8 * 1024 * 1024
+    # 每用户同时处于 Success（运行中）的应用上限
+    user_app_running_limit: int = 2
 
     @property
     def is_development(self) -> bool:

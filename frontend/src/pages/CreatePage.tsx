@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ApiError, createTask, uploadImage } from "@/lib/api";
+import { ApiError, createTask, fetchQuota, uploadImage, type QuotaInfo } from "@/lib/api";
 import { FunAsrSession, type FunAsrStatus } from "@/lib/funasr";
+import { formatQuota } from "@/lib/task-utils";
 import { cn } from "@/lib/utils";
 
 type LocalImage = {
@@ -26,11 +27,19 @@ export function CreatePage() {
   const [asrError, setAsrError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [quota, setQuota] = useState<QuotaInfo | null>(null);
 
   const listening = asrStatus === "listening" || asrStatus === "connecting";
+  const quotaFull = quota != null && quota.remaining <= 0;
 
   const imagesRef = useRef<LocalImage[]>([]);
   imagesRef.current = images;
+
+  useEffect(() => {
+    void fetchQuota()
+      .then(setQuota)
+      .catch(() => setQuota(null));
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -142,6 +151,12 @@ export function CreatePage() {
         <p className="text-sm leading-relaxed text-muted-foreground">
           按住思路口述需求，可附带 UI 草图；提交后进入异步编排流水线。
         </p>
+        {quota ? (
+          <p className="text-xs text-muted-foreground">
+            {formatQuota(quota.used, quota.limit)}
+            {quotaFull ? " · 已满，请先停止或移除一个运行中的应用" : null}
+          </p>
+        ) : null}
       </div>
 
       <section className="space-y-3">
@@ -269,7 +284,7 @@ export function CreatePage() {
         type="button"
         size="lg"
         className="w-full"
-        disabled={submitting}
+        disabled={submitting || quotaFull}
         onClick={() => void onSubmit()}
       >
         {submitting ? (
