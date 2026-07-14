@@ -32,6 +32,11 @@ API 代理：`/api` → `http://127.0.0.1:8000`
 - `POST /api/v1/uploads/images`、`POST /api/v1/tasks`
 - FunASR 地址：`VITE_FUNASR_WS_URL`（默认内网 `ws://10.17.150.235:10095`）
 
+## 任务看板
+
+- `/apps`：任务列表、阶段徽章、进行中自动轮询
+- `/apps/:taskId`：需求原文、阶段日志时间线、内网 URL、分享卡片（Web Share / 复制）
+
 ## 构建
 
 ```bash
