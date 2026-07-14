@@ -1,14 +1,28 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
-import { HomePlaceholder } from "@/pages/HomePlaceholder";
+import { AuthProvider } from "@/auth/AuthContext";
+import { RequireAuth } from "@/auth/RequireAuth";
+import { AppShell } from "@/components/shell/AppShell";
+import { AppsPage } from "@/pages/AppsPage";
+import { CreatePage } from "@/pages/CreatePage";
+import { LoginPage } from "@/pages/LoginPage";
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePlaceholder />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route element={<RequireAuth />}>
+            <Route element={<AppShell />}>
+              <Route path="/" element={<Navigate to="/create" replace />} />
+              <Route path="/create" element={<CreatePage />} />
+              <Route path="/apps" element={<AppsPage />} />
+            </Route>
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }

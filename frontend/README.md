@@ -20,6 +20,12 @@ npm run dev
 
 API 代理：`/api` → `http://127.0.0.1:8000`
 
+## 认证
+
+- 登录页：`/login`（ITCode，对接 `POST /api/v1/auth/login`）
+- 登录后壳层：顶部品牌栏 + 底部「创建 / 应用」Tab
+- Token 存 `localStorage`，启动时调用 `/api/v1/auth/me` 恢复会话
+
 ## 构建
 
 ```bash
