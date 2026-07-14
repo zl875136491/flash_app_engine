@@ -147,3 +147,41 @@ export async function uploadImage(file: File): Promise<UploadImageResponse> {
   }
   return (await response.json()) as UploadImageResponse;
 }
+
+export type TaskSummary = {
+  id: string;
+  author_itcode: string;
+  raw_voice_text: string | null;
+  current_stage: Stage;
+  exposed_url: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type TaskListResponse = {
+  items: TaskSummary[];
+  total: number;
+};
+
+export type StageLog = {
+  stage: Stage;
+  message: string;
+  detail: string;
+  created_at: string;
+};
+
+export function listTasks(params?: { skip?: number; limit?: number }) {
+  const search = new URLSearchParams();
+  if (params?.skip != null) search.set("skip", String(params.skip));
+  if (params?.limit != null) search.set("limit", String(params.limit));
+  const qs = search.toString();
+  return apiRequest<TaskListResponse>(`/api/v1/tasks${qs ? `?${qs}` : ""}`);
+}
+
+export function getTask(taskId: string) {
+  return apiRequest<TaskDetail>(`/api/v1/tasks/${taskId}`);
+}
+
+export function getTaskLogs(taskId: string) {
+  return apiRequest<StageLog[]>(`/api/v1/tasks/${taskId}/logs`);
+}
