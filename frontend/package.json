@@ -8,8 +8,10 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:https": "./run-https.sh",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
+    "preview:https": "VITE_HTTPS=true vite preview",
     "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {

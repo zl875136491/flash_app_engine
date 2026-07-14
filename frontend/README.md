@@ -32,10 +32,21 @@ API 代理：`/api` → `http://127.0.0.1:8000`
 - `POST /api/v1/uploads/images`、`POST /api/v1/tasks`
 - FunASR 地址：`VITE_FUNASR_WS_URL`（默认内网 `ws://10.17.150.235:10095`）
 
-## 任务看板
+## HTTPS（内网 IP，无域名）
 
-- `/apps`：任务列表、阶段徽章、进行中自动轮询
-- `/apps/:taskId`：需求原文、阶段日志时间线、内网 URL、分享卡片（Web Share / 复制）
+详见 `docs/https_ip_setup.md`。
+
+```bash
+# 仓库根目录
+./scripts/gen-ip-certs.sh <你的内网IP>
+# 安装并信任 certs/ip.crt 到手机
+
+cd frontend
+export VITE_API_PROXY_TARGET=http://127.0.0.1:8000
+npm run dev:https
+```
+
+语音默认走同源 `wss://<host>/api/v1/asr/ws`（后端转发 FunASR），不要在 HTTPS 页直连 `ws://`。
 
 ## 构建
 

@@ -1,0 +1,31 @@
+# FlashApp Engine — 内网 IP HTTPS 入口（无域名）
+#
+# 用法（在仓库根目录）:
+#   1) ./scripts/gen-ip-certs.sh 10.8.1.23
+#   2) 编辑本文件，将 10.8.1.23 换成真实 IP（与证书 SAN 一致）
+#   3) cd backend && ./run.sh          # HTTP 监听 127.0.0.1:8000 即可
+#   4) cd frontend && npm run build
+#   5) caddy run --config Caddyfile --adapter caddyfile
+#
+# 浏览器只访问: https://10.8.1.23
+# /api 与 WebSocket 由 Caddy 反代，同源无混合内容。
+
+{
+	auto_https off
+}
+
+https://10.8.1.23 {
+	tls certs/ip.crt certs/ip.key
+
+	encode gzip
+
+	handle /api/* {
+		reverse_proxy 127.0.0.1:8000
+	}
+
+	handle {
+		root * frontend/dist
+		try_files {path} /index.html
+		file_server
+	}
+}
