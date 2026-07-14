@@ -1,4 +1,4 @@
-"""编排流水线：安全审查 → Analyzing → Coding（Building/Verifying 见任务点 8）。"""
+"""编排流水线：安全审查 → Analyzing → Coding → Building → Verifying。"""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ from src.configs import get_settings
 from src.modules.llm import LocalModelGateway, get_local_model_gateway
 from src.modules.models import Task
 from src.modules.models.enums import Stage, utc_now
+from src.modules.sandbox import build_and_verify
 from src.modules.tasks.repo import get_task_by_id
 from src.modules.worker.analyzing import analyze_requirement, resources_from_plan
 from src.modules.worker.coding import generate_code, write_code_bundle
@@ -45,7 +46,7 @@ async def run_pipeline(
     gateway: LocalModelGateway | None = None,
     mock: bool | None = None,
 ) -> dict:
-    """执行 AI 编排：安全熔断 → 架构解析 → 代码生成落盘。"""
+    """完整编排至部署验证（Building/Verifying 可 mock）。"""
     task = await get_task_by_id(task_id)
     if task is None:
         raise ValueError(f"任务不存在: {task_id}")
@@ -136,18 +137,14 @@ async def run_pipeline(
         detail=f"path={code_root}; files={len(bundle.get('files') or [])}; notes={bundle.get('notes', '')}",
     )
 
-    # Building/Verifying 留给任务点 8
-    task = await get_task_by_id(task_id)
-    assert task is not None
-    return {
-        "task_id": task_id,
-        "current_stage": task.current_stage.value,
-        "log_count": len(task.logs or []),
-        "generated_code_path": task.generated_code_path,
-        "failed": False,
-    }
+    return await build_and_verify(
+        task,
+        append_stage=append_stage,
+        fail_task=fail_task,
+        gateway=gw,
+        mock=None,
+    )
 
 
-# 兼容任务点 6 的函数名
 async def run_pipeline_skeleton(task_id: str) -> dict:
     return await run_pipeline(task_id)

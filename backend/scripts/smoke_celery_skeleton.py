@@ -6,6 +6,7 @@ import os
 
 os.environ["CELERY_TASK_ALWAYS_EAGER"] = "true"
 os.environ["AI_MOCK"] = "true"
+os.environ["SANDBOX_MOCK"] = "true"
 os.environ.setdefault("MONGODB_URI", "mongodb://127.0.0.1:27017")
 os.environ.setdefault("MONGODB_DB", "flashapp_celery_smoke")
 os.environ.setdefault("GENERATED_CODE_ROOT", "/tmp/flashapp/tasks")
@@ -42,10 +43,11 @@ def main() -> None:
         assert created.status_code == 201, created.text
         task = created.json()
         print("stage", task["current_stage"], "logs", len(task["logs"]))
-        assert task["current_stage"] == "Coding", task
+        assert task["current_stage"] == "Success", task
         messages = [log["message"] for log in task["logs"]]
         assert any("架构解析完成" in m or "代码已生成" in m for m in messages), messages
         assert task.get("generated_code_path")
+        assert task.get("exposed_url")
 
     print("celery skeleton smoke tests passed")
 
