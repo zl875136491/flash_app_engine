@@ -21,6 +21,7 @@ class Stage(str, Enum):
     Verifying = "Verifying"
     Success = "Success"
     Failed = "Failed"
+    Stopped = "Stopped"
 
 
 class AllocatedResources(BaseModel):

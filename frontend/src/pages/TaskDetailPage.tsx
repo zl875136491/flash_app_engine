@@ -1,18 +1,29 @@
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Play, RotateCcw, Square, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { ShareCard } from "@/components/apps/ShareCard";
 import { StageBadge } from "@/components/apps/StageBadge";
 import { Button } from "@/components/ui/button";
-import { ApiError, getTask, type TaskDetail } from "@/lib/api";
+import {
+  ApiError,
+  getTask,
+  removeTask,
+  retryTask,
+  startTask,
+  stopTask,
+  type TaskDetail,
+} from "@/lib/api";
 import { formatTime, isActiveStage, STAGE_LABEL, taskTitle } from "@/lib/task-utils";
 
 export function TaskDetailPage() {
+  const navigate = useNavigate();
   const { taskId = "" } = useParams();
   const [task, setTask] = useState<TaskDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [acting, setActing] = useState(false);
 
   const load = useCallback(
     async (silent = false) => {
@@ -42,6 +53,33 @@ export function TaskDetailPage() {
     }, 3000);
     return () => window.clearInterval(timer);
   }, [task, load]);
+
+  async function runAction(action: "stop" | "start" | "retry" | "remove") {
+    if (!taskId) return;
+    setActing(true);
+    setActionError(null);
+    try {
+      if (action === "remove") {
+        if (!window.confirm("确定移除该应用？容器与任务记录将被删除且不可恢复。")) {
+          return;
+        }
+        await removeTask(taskId);
+        navigate("/apps", { replace: true });
+        return;
+      }
+      if (action === "stop") {
+        setTask(await stopTask(taskId));
+      } else if (action === "start") {
+        setTask(await startTask(taskId));
+      } else {
+        setTask(await retryTask(taskId));
+      }
+    } catch (err) {
+      setActionError(err instanceof ApiError ? err.message : "操作失败");
+    } finally {
+      setActing(false);
+    }
+  }
 
   if (loading && !task) {
     return (
@@ -90,7 +128,7 @@ export function TaskDetailPage() {
         </section>
       ) : null}
 
-      {task.exposed_url ? (
+      {task.exposed_url && task.current_stage === "Success" ? (
         <ShareCard
           title={title}
           url={task.exposed_url}
@@ -102,9 +140,53 @@ export function TaskDetailPage() {
             ? "部署完成后将在此显示内网访问链接与分享卡片。"
             : task.current_stage === "Failed"
               ? "任务失败，暂无对外链接。"
-              : "暂无对外链接。"}
+              : task.current_stage === "Stopped"
+                ? "应用已停止，启动后可重新访问。"
+                : "暂无对外链接。"}
         </div>
       )}
+
+      <div className="flex flex-wrap gap-2">
+        {task.current_stage === "Success" ? (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={acting}
+            onClick={() => void runAction("stop")}
+          >
+            {acting ? <Loader2 className="size-4 animate-spin" /> : <Square className="size-4" />}
+            停止
+          </Button>
+        ) : null}
+        {task.current_stage === "Stopped" ? (
+          <Button type="button" disabled={acting} onClick={() => void runAction("start")}>
+            {acting ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />}
+            启动
+          </Button>
+        ) : null}
+        {task.current_stage === "Failed" ? (
+          <Button type="button" disabled={acting} onClick={() => void runAction("retry")}>
+            {acting ? <Loader2 className="size-4 animate-spin" /> : <RotateCcw className="size-4" />}
+            重试
+          </Button>
+        ) : null}
+        {!isActiveStage(task.current_stage) ? (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={acting}
+            onClick={() => void runAction("remove")}
+          >
+            {acting ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+            移除
+          </Button>
+        ) : null}
+      </div>
+      {actionError ? (
+        <p className="text-sm text-destructive" role="alert">
+          {actionError}
+        </p>
+      ) : null}
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">

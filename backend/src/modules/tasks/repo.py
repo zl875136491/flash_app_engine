@@ -99,6 +99,13 @@ async def count_tasks_for_user(user: User) -> int:
     return await Task.find({"author.$id": user.id}).count()
 
 
+async def count_running_tasks_for_user(user: User) -> int:
+    """仅 Success（容器正在运行）占用额度。"""
+    return await Task.find(
+        {"author.$id": user.id, "current_stage": Stage.Success.value}
+    ).count()
+
+
 async def create_task_document(
     *,
     author: User,

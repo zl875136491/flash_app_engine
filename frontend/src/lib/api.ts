@@ -89,7 +89,8 @@ export type Stage =
   | "Building"
   | "Verifying"
   | "Success"
-  | "Failed";
+  | "Failed"
+  | "Stopped";
 
 export type TaskDetail = {
   id: string;
@@ -161,6 +162,13 @@ export type TaskSummary = {
 export type TaskListResponse = {
   items: TaskSummary[];
   total: number;
+  quota?: QuotaInfo | null;
+};
+
+export type QuotaInfo = {
+  limit: number;
+  used: number;
+  remaining: number;
 };
 
 export type StageLog = {
@@ -178,10 +186,33 @@ export function listTasks(params?: { skip?: number; limit?: number }) {
   return apiRequest<TaskListResponse>(`/api/v1/tasks${qs ? `?${qs}` : ""}`);
 }
 
+export function fetchQuota() {
+  return apiRequest<QuotaInfo>("/api/v1/tasks/quota");
+}
+
 export function getTask(taskId: string) {
   return apiRequest<TaskDetail>(`/api/v1/tasks/${taskId}`);
 }
 
 export function getTaskLogs(taskId: string) {
   return apiRequest<StageLog[]>(`/api/v1/tasks/${taskId}/logs`);
+}
+
+export function stopTask(taskId: string) {
+  return apiRequest<TaskDetail>(`/api/v1/tasks/${taskId}/stop`, { method: "POST" });
+}
+
+export function startTask(taskId: string) {
+  return apiRequest<TaskDetail>(`/api/v1/tasks/${taskId}/start`, { method: "POST" });
+}
+
+export function retryTask(taskId: string) {
+  return apiRequest<TaskDetail>(`/api/v1/tasks/${taskId}/retry`, { method: "POST" });
+}
+
+export function removeTask(taskId: string) {
+  return apiRequest<{ ok: boolean; task_id: string; detail: string }>(
+    `/api/v1/tasks/${taskId}`,
+    { method: "DELETE" },
+  );
 }

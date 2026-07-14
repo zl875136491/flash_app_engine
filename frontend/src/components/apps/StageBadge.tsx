@@ -10,6 +10,7 @@ const tone: Record<Stage, string> = {
   Verifying: "bg-accent/30 text-accent-foreground",
   Success: "bg-primary/15 text-primary",
   Failed: "bg-destructive/15 text-destructive",
+  Stopped: "bg-muted text-muted-foreground",
 };
 
 export function StageBadge({ stage }: { stage: Stage }) {

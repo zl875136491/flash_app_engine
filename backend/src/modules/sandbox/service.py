@@ -103,6 +103,35 @@ async def build_and_verify(
         )
         ok, health_detail = await wait_for_http_ok(f"{deploy.exposed_url}/health")
         if ok:
+            # 落库 Success 前再校验运行额度，防止并发创建超限
+            from src.modules.models import User
+            from src.modules.sandbox.lifecycle import stop_task_runtime
+            from src.modules.tasks import repo as task_repo
+
+            settings_quota = get_settings()
+            limit = max(1, settings_quota.user_app_running_limit)
+            author = task.author
+            if not isinstance(author, User):
+                try:
+                    author = await task.author.fetch()  # type: ignore[union-attr]
+                except Exception:
+                    author = None
+            used = 0
+            if isinstance(author, User):
+                used = await task_repo.count_running_tasks_for_user(author)
+            if used >= limit:
+                task.containers = deploy.containers
+                task.exposed_url = deploy.exposed_url
+                stop_task_runtime(task)
+                return await fail_task(
+                    task,
+                    message="运行额度不足，部署未保留",
+                    detail=(
+                        f"同时运行上限 {limit}，当前已有 {used} 个运行中应用；"
+                        "已停止本次新拉起的容器，请停止其他应用后重试"
+                    ),
+                )
+
             await append_stage(
                 task,
                 stage=Stage.Success,
