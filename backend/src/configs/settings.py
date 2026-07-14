@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     celery_task_always_eager: bool = False
     # 无内网模型时用于编排冒烟；生产应保持 false
     ai_mock: bool = False
+    # 无 Docker 或仅冒烟时设 true；未安装 Docker 时也会自动降级
+    sandbox_mock: bool = False
+    sandbox_public_host: str = "127.0.0.1"
 
     qwen_base_url: str = "http://10.8.136.35:8081"
     seedcoder_base_url: str = "http://10.8.136.35:8881"

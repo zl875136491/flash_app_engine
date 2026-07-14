@@ -7,6 +7,7 @@ from pathlib import Path
 
 os.environ["CELERY_TASK_ALWAYS_EAGER"] = "true"
 os.environ["AI_MOCK"] = "true"
+os.environ["SANDBOX_MOCK"] = "true"
 os.environ.setdefault("MONGODB_URI", "mongodb://127.0.0.1:27017")
 os.environ.setdefault("MONGODB_DB", "flashapp_ai_smoke")
 os.environ.setdefault("GENERATED_CODE_ROOT", "/tmp/flashapp/tasks")
@@ -36,7 +37,7 @@ def main() -> None:
         assert client.get("/api/v1/health").json().get("mongodb") == "connected"
         headers = {"Authorization": f"Bearer {create_access_token(itcode='zhangle')}"}
 
-        # 正常路径：Coding + 代码落盘
+        # 正常路径：完整到 Success（含 mock 沙箱）
         ok = client.post(
             "/api/v1/tasks",
             headers=headers,
@@ -44,12 +45,14 @@ def main() -> None:
         )
         assert ok.status_code == 201, ok.text
         task = ok.json()
-        assert task["current_stage"] == "Coding", task
+        assert task["current_stage"] == "Success", task
         assert task["generated_code_path"]
         code_root = Path(task["generated_code_path"])
         assert (code_root / "backend" / "main.py").exists()
         assert (code_root / "frontend" / "index.html").exists()
+        assert task.get("exposed_url")
         assert any("架构解析完成" in log["message"] for log in task["logs"])
+        assert any(log["stage"] == "Success" for log in task["logs"])
 
         # 安全熔断路径
         blocked = client.post(
