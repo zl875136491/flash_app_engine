@@ -12,6 +12,7 @@ usage() {
 命令:
   install   安装 Python 依赖
   run       启动开发服务器（等同 run.sh）
+  worker    启动 Celery Worker（等同 worker.sh）
   health    请求本地健康检查接口
 EOF
 }
@@ -23,6 +24,9 @@ case "$cmd" in
     ;;
   run)
     exec ./run.sh
+    ;;
+  worker)
+    exec ./worker.sh
     ;;
   health)
     curl -sS "http://127.0.0.1:${PORT:-8000}/health" | python3 -m json.tool
