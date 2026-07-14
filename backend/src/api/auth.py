@@ -12,7 +12,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 @router.post("/login", response_model=TokenResponse)
 async def login(body: LoginRequest) -> TokenResponse:
     """核验 ITCode 存在性后签发 JWT。无需密码。"""
-    return login_with_itcode(body)
+    return await login_with_itcode(body)
 
 
 @router.get("/me", response_model=CurrentUser)
