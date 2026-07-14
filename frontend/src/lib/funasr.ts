@@ -41,7 +41,13 @@ function downsampleBuffer(
 }
 
 export function getFunAsrWsUrl(): string {
-  return import.meta.env.VITE_FUNASR_WS_URL || "ws://10.17.150.235:10095";
+  // 优先显式配置；否则走同源后端代理，避免 HTTPS 页面直连 ws:// 被混合内容拦截
+  const configured = import.meta.env.VITE_FUNASR_WS_URL as string | undefined;
+  if (configured && configured.trim()) {
+    return configured.trim();
+  }
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  return `${protocol}//${window.location.host}/api/v1/asr/ws`;
 }
 
 export class FunAsrSession {

@@ -282,3 +282,10 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# TLS certs (IP HTTPS)
+certs/*.crt
+certs/*.key
+certs/*.pem
+certs/openssl-ip.cnf
+!certs/README.md

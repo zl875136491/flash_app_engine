@@ -11,9 +11,10 @@ usage() {
 
 命令:
   install   安装 Python 依赖
-  run       启动开发服务器（等同 run.sh）
+  run       启动开发服务器（等同 run.sh，自动 HTTPS 若有证书）
   worker    启动 Celery Worker（等同 worker.sh）
   health    请求本地健康检查接口
+  certs     提示如何生成 IP 证书
 EOF
 }
 
@@ -29,7 +30,15 @@ case "$cmd" in
     exec ./worker.sh
     ;;
   health)
-    curl -sS "http://127.0.0.1:${PORT:-8000}/health" | python3 -m json.tool
+    if [[ -f "$ROOT_DIR/../certs/ip.crt" ]]; then
+      curl -skS "https://127.0.0.1:${PORT:-8000}/health" | python3 -m json.tool
+    else
+      curl -sS "http://127.0.0.1:${PORT:-8000}/health" | python3 -m json.tool
+    fi
+    ;;
+  certs)
+    echo "请在仓库根目录执行: ./scripts/gen-ip-certs.sh <内网IP>"
+    echo "文档: docs/https_ip_setup.md"
     ;;
   *)
     usage
