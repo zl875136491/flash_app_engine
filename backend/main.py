@@ -6,6 +6,6 @@
   ./run.sh
 """
 
-from src.core import create_app
+from src.core.app import create_app
 
 app = create_app()
