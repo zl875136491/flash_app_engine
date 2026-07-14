@@ -1,13 +1,14 @@
-"""Celery 骨架冒烟：eager 模式推进里程碑并写回 Mongo。"""
+"""Celery / 流水线冒烟（兼容任务点 6）：eager + AI_MOCK。"""
 
 from __future__ import annotations
 
 import os
 
-# 必须在导入 celery_app / settings 缓存前设置
 os.environ["CELERY_TASK_ALWAYS_EAGER"] = "true"
+os.environ["AI_MOCK"] = "true"
 os.environ.setdefault("MONGODB_URI", "mongodb://127.0.0.1:27017")
 os.environ.setdefault("MONGODB_DB", "flashapp_celery_smoke")
+os.environ.setdefault("GENERATED_CODE_ROOT", "/tmp/flashapp/tasks")
 
 from src.configs.settings import get_settings
 
@@ -23,6 +24,7 @@ from src.modules.auth.jwt import create_access_token
 def main() -> None:
     settings = get_settings()
     assert settings.celery_task_always_eager is True
+    assert settings.ai_mock is True
     celery_app.conf.task_always_eager = True
 
     app = create_app()
@@ -42,8 +44,8 @@ def main() -> None:
         print("stage", task["current_stage"], "logs", len(task["logs"]))
         assert task["current_stage"] == "Coding", task
         messages = [log["message"] for log in task["logs"]]
-        assert any("Worker 已接手" in m for m in messages), messages
-        assert any("编码占位" in m or "占位" in m for m in messages), messages
+        assert any("架构解析完成" in m or "代码已生成" in m for m in messages), messages
+        assert task.get("generated_code_path")
 
     print("celery skeleton smoke tests passed")
 

@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 @celery_app.task(name="flashapp.process_task", bind=True, max_retries=3)
 def process_flashapp_task(self, task_id: str) -> dict:
-    """消费单个 FlashApp 任务，推进里程碑并写回数据库。"""
+    """消费单个 FlashApp 任务：安全审查 → Analyzing → Coding。"""
     logger.info("celery received task_id=%s retries=%s", task_id, self.request.retries)
     try:
         result = run_async(lambda: run_pipeline_skeleton(task_id))
