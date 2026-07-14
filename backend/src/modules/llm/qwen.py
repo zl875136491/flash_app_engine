@@ -37,12 +37,12 @@ class QwenClient(HttpModelClient):
         enable_thinking: bool = False,
         extra: dict[str, Any] | None = None,
     ) -> str:
+        # 原始 HTTP 请求需把 chat_template_kwargs 放在 body 顶层；
+        # OpenAI SDK 的 extra_body 嵌套在此会被 vLLM 忽略，导致 thinking 无法关闭、content 为空。
         payload: dict[str, Any] = {
             "model": self.model_id,
             "messages": messages,
-            "extra_body": {
-                "chat_template_kwargs": {"enable_thinking": enable_thinking},
-            },
+            "chat_template_kwargs": {"enable_thinking": enable_thinking},
         }
         if temperature is not None:
             payload["temperature"] = temperature

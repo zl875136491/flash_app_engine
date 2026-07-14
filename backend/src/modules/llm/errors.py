@@ -22,14 +22,21 @@ class LocalModelHTTPError(LocalModelError):
 
 def extract_chat_content(payload: dict[str, Any]) -> str:
     try:
-        content = payload["choices"][0]["message"]["content"]
+        message = payload["choices"][0]["message"]
     except (KeyError, IndexError, TypeError) as exc:
-        raise LocalModelError("响应缺少 choices[0].message.content", body=payload) from exc
-    if content is None:
-        return ""
-    if isinstance(content, str):
+        raise LocalModelError("响应缺少 choices[0].message", body=payload) from exc
+
+    content = message.get("content")
+    if isinstance(content, str) and content.strip():
         return content
-    return str(content)
+    if content is not None and not isinstance(content, str):
+        return str(content)
+
+    # 部分推理模型在 thinking 开启时会把正文放进 reasoning，content 为空
+    reasoning = message.get("reasoning") or message.get("reasoning_content")
+    if isinstance(reasoning, str) and reasoning.strip():
+        return reasoning
+    return ""
 
 
 def extract_completion_text(payload: dict[str, Any]) -> str:

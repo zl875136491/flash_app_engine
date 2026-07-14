@@ -35,12 +35,11 @@ class SeedCoderClient(HttpModelClient):
         max_tokens: int | None = None,
         extra: dict[str, Any] | None = None,
     ) -> str:
+        # 原始 HTTP 请求需把 chat_template_kwargs 放在 body 顶层（勿嵌套 extra_body）。
         payload: dict[str, Any] = {
             "model": self.model_id,
             "messages": messages,
-            "extra_body": {
-                "chat_template_kwargs": {"enable_thinking": enable_thinking},
-            },
+            "chat_template_kwargs": {"enable_thinking": enable_thinking},
         }
         if temperature is not None:
             payload["temperature"] = temperature

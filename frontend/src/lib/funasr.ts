@@ -50,6 +50,18 @@ export function getFunAsrWsUrl(): string {
   return `${protocol}//${window.location.host}/api/v1/asr/ws`;
 }
 
+function assertMicrophoneAvailable(): void {
+  // 非安全上下文（如 http://内网IP）下 mediaDevices 常为 undefined，直接点属性会抛 TypeError
+  if (typeof window !== "undefined" && !window.isSecureContext) {
+    throw new Error(
+      "语音输入需要 HTTPS。请用 https:// 打开本站，并在手机上安装信任证书后重试；也可直接手动输入需求。",
+    );
+  }
+  if (!navigator.mediaDevices?.getUserMedia) {
+    throw new Error("当前浏览器不支持麦克风访问，请改用手动输入需求。");
+  }
+}
+
 export class FunAsrSession {
   private ws: WebSocket | null = null;
   private audioContext: AudioContext | null = null;
@@ -65,6 +77,7 @@ export class FunAsrSession {
 
   async start(): Promise<void> {
     this.closed = false;
+    assertMicrophoneAvailable();
     this.handlers.onStatus?.("connecting");
 
     const wsUrl = getFunAsrWsUrl();
@@ -104,7 +117,7 @@ export class FunAsrSession {
       }
     };
 
-    this.mediaStream = await navigator.mediaDevices.getUserMedia({
+    this.mediaStream = await navigator.mediaDevices!.getUserMedia({
       audio: {
         channelCount: 1,
         echoCancellation: true,

@@ -17,14 +17,62 @@ from src.modules.sandbox.ports import allocate_host_port
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_DOCKERFILE = """\
+BACKEND_DOCKERFILE = """\
 FROM python:3.12-slim
 WORKDIR /app
 RUN pip install --no-cache-dir fastapi uvicorn
 COPY backend/ /app/
+COPY frontend/ /app/static/
 EXPOSE 8000
 CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 """
+
+FRONTEND_DOCKERFILE = """\
+FROM nginx:alpine
+COPY frontend/ /usr/share/nginx/html/
+RUN printf '%s\\n' \
+  'server {' \
+  '  listen 8000;' \
+  '  server_name _;' \
+  '  root /usr/share/nginx/html;' \
+  '  location = /health { default_type text/plain; return 200 "ok\\n"; }' \
+  '  location / { try_files $uri $uri/ /index.html; }' \
+  '}' \
+  > /etc/nginx/conf.d/default.conf
+EXPOSE 8000
+CMD ["nginx", "-g", "daemon off;"]
+"""
+
+MINIMAL_BACKEND_MAIN = """\
+from pathlib import Path
+
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+app = FastAPI(title="FlashApp Generated")
+static_dir = Path(__file__).resolve().parent / "static"
+index_file = static_dir / "index.html"
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
+if static_dir.is_dir():
+    app.mount("/assets", StaticFiles(directory=static_dir), name="assets")
+
+
+@app.get("/")
+def root():
+    if index_file.exists():
+        return FileResponse(index_file)
+    return {"status": "ok", "message": "FlashApp generated backend"}
+"""
+
+# 兼容旧引用
+DEFAULT_DOCKERFILE = BACKEND_DOCKERFILE
 
 
 @dataclass
@@ -38,10 +86,67 @@ class DeployResult:
     pid: int | None = None
 
 
-def _ensure_dockerfile(code_root: Path) -> None:
+def _backend_main(code_root: Path) -> Path:
+    return code_root / "backend" / "main.py"
+
+
+def _python_syntax_ok(path: Path) -> bool:
+    try:
+        compile(path.read_text(encoding="utf-8"), str(path), "exec")
+        return True
+    except Exception:
+        return False
+
+
+def _ensure_frontend_placeholder(code_root: Path) -> None:
+    frontend = code_root / "frontend"
+    frontend.mkdir(parents=True, exist_ok=True)
+    index = frontend / "index.html"
+    if not index.exists():
+        index.write_text(
+            "<!doctype html><html><head><meta charset='utf-8'/>"
+            "<title>FlashApp</title></head>"
+            "<body><h1>FlashApp</h1><p>generated</p></body></html>\n",
+            encoding="utf-8",
+        )
+
+
+def _prepare_code_root(code_root: Path) -> None:
+    """按实际产物布局补齐可构建的 Dockerfile / 最小可运行入口。
+
+    常见模型输出只有 frontend，或 backend/main.py 语法损坏；默认 Dockerfile 又假设
+    存在 backend/，会导致 COPY 失败或容器启动即崩。这里在构建前做一次本地纠偏。
+    """
+    _ensure_frontend_placeholder(code_root)
+    main_py = _backend_main(code_root)
+    backend_ok = main_py.exists() and _python_syntax_ok(main_py)
     dockerfile = code_root / "Dockerfile"
-    if not dockerfile.exists():
-        dockerfile.write_text(DEFAULT_DOCKERFILE, encoding="utf-8")
+
+    if not backend_ok:
+        if main_py.exists():
+            logger.warning("invalid backend/main.py; falling back to frontend nginx image")
+        # 无可用后端时，用 nginx 托管静态页，并提供 /health
+        dockerfile.write_text(FRONTEND_DOCKERFILE, encoding="utf-8")
+        return
+
+    text = dockerfile.read_text(encoding="utf-8") if dockerfile.exists() else ""
+    needs_rewrite = (
+        not text.strip()
+        or ("COPY backend" in text and not (code_root / "backend").is_dir())
+        or ("COPY backend/" in text and "COPY frontend/" not in text)
+    )
+    if needs_rewrite or not dockerfile.exists():
+        dockerfile.write_text(BACKEND_DOCKERFILE, encoding="utf-8")
+
+    src = main_py.read_text(encoding="utf-8")
+    if "/health" not in src:
+        logger.warning("backend/main.py missing /health; rewriting minimal app")
+        main_py.write_text(MINIMAL_BACKEND_MAIN, encoding="utf-8")
+
+
+def _ensure_dockerfile(code_root: Path) -> None:
+    """兼容旧调用；实际准备逻辑见 _prepare_code_root。"""
+    _prepare_code_root(code_root)
 
 
 def _public_url(port: int) -> str:
@@ -51,7 +156,7 @@ def _public_url(port: int) -> str:
 
 def deploy_with_docker(task_id: str, code_root: str) -> DeployResult:
     root = Path(code_root)
-    _ensure_dockerfile(root)
+    _prepare_code_root(root)
     host_port = allocate_host_port()
     image = f"flashapp-{task_id}".lower()
     name = f"flashapp-{task_id}".lower()

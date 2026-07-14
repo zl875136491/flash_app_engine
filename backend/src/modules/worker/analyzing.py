@@ -47,9 +47,24 @@ async def analyze_requirement(
         f"用户需求：\n{requirement}\n\n"
         "请只输出 JSON。"
     )
-    text = await gateway.deepseek.complete(prompt, max_tokens=1200, temperature=0)
+
+    # Qwen 作为主解析器（稳定 JSON）；DeepSeek 退化/不可用时再尝试
+    try:
+        text = await gateway.qwen.chat(
+            [{"role": "user", "content": prompt}],
+            enable_thinking=False,
+            temperature=0,
+            max_tokens=1200,
+        )
+        data = extract_json_object(text)
+        logger.info("analyze via qwen summary=%s", data.get("summary"))
+        return data
+    except Exception as exc:
+        logger.warning("qwen analyze failed, fallback to deepseek: %s", exc)
+
+    text = await gateway.deepseek.complete(prompt, max_tokens=2048, temperature=0)
     data = extract_json_object(text)
-    logger.info("analyze summary=%s", data.get("summary"))
+    logger.info("analyze via deepseek summary=%s", data.get("summary"))
     return data
 
 
