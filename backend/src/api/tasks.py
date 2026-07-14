@@ -19,7 +19,7 @@ async def create_task(
     body: CreateTaskRequest,
     user: CurrentUser = Depends(get_current_user),
 ) -> TaskDetail:
-    """创建任务并写入 Received 初始日志。异步编排将在任务点 6 接入。"""
+    """创建任务并写入 Received 初始日志，随后投递 Celery 编排队列。"""
     return await service.create_task(user, body)
 
 

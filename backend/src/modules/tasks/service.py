@@ -7,6 +7,7 @@ from fastapi import HTTPException, status
 from src.core.database import is_db_ready
 from src.modules.auth.schemas import CurrentUser
 from src.modules.models import get_or_create_user, get_user_by_itcode
+from src.modules.models.enums import Stage, utc_now
 from src.modules.tasks import repo
 from src.modules.tasks.schemas import (
     CreateTaskRequest,
@@ -15,6 +16,7 @@ from src.modules.tasks.schemas import (
     TaskListResponse,
     TaskSummary,
 )
+from src.modules.worker import enqueue_process_task
 
 
 def require_db() -> None:
@@ -34,7 +36,41 @@ async def create_task(user: CurrentUser, body: CreateTaskRequest) -> TaskDetail:
         images_content=body.images_content,
         image_paths=body.image_paths,
     )
-    return await repo.to_detail(task)
+
+    from src.configs import get_settings
+
+    settings = get_settings()
+    if settings.celery_task_always_eager:
+        # 开发冒烟：同进程内联执行骨架流水线，不经过 broker
+        from src.modules.worker.pipeline import run_pipeline_skeleton
+
+        task.append_log(
+            stage=Stage.Received,
+            message="已投递异步编排队列",
+            detail="celery_id=eager-inline",
+        )
+        task.updated_at = utc_now()
+        await task.save()
+        await run_pipeline_skeleton(str(task.id))
+    else:
+        celery_id = enqueue_process_task(str(task.id))
+        if celery_id is None:
+            task.append_log(
+                stage=Stage.Received,
+                message="异步入队失败",
+                detail="Celery broker 不可用，任务已落库，可稍后由 Worker 补偿消费",
+            )
+        else:
+            task.append_log(
+                stage=Stage.Received,
+                message="已投递异步编排队列",
+                detail=f"celery_id={celery_id}",
+            )
+        task.updated_at = utc_now()
+        await task.save()
+
+    refreshed = await repo.get_task_by_id(str(task.id))
+    return await repo.to_detail(refreshed or task)
 
 
 async def list_tasks(
