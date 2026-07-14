@@ -81,3 +81,69 @@ export function loginWithItcode(itcode: string) {
 export function fetchMe() {
   return apiRequest<MeResponse>("/api/v1/auth/me");
 }
+
+export type Stage =
+  | "Received"
+  | "Analyzing"
+  | "Coding"
+  | "Building"
+  | "Verifying"
+  | "Success"
+  | "Failed";
+
+export type TaskDetail = {
+  id: string;
+  author_itcode: string;
+  raw_voice_text: string | null;
+  current_stage: Stage;
+  exposed_url: string | null;
+  created_at: string;
+  updated_at: string;
+  images_content: string[];
+  image_paths: string[];
+  logs: { stage: Stage; message: string; detail: string; created_at: string }[];
+  generated_code_path: string | null;
+};
+
+export type CreateTaskPayload = {
+  raw_voice_text?: string | null;
+  images_content?: string[];
+  image_paths?: string[];
+};
+
+export function createTask(payload: CreateTaskPayload) {
+  return apiRequest<TaskDetail>("/api/v1/tasks", {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export type UploadImageResponse = {
+  path: string;
+  filename: string;
+  content_type: string | null;
+  size: number;
+};
+
+export async function uploadImage(file: File): Promise<UploadImageResponse> {
+  const token = getStoredToken();
+  const form = new FormData();
+  form.append("file", file);
+
+  const headers = new Headers({ Accept: "application/json" });
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+
+  const response = await fetch("/api/v1/uploads/images", {
+    method: "POST",
+    headers,
+    body: form,
+  });
+
+  if (response.status === 401) {
+    clearSession();
+  }
+  if (!response.ok) {
+    throw new ApiError(response.status, await parseError(response));
+  }
+  return (await response.json()) as UploadImageResponse;
+}

@@ -48,6 +48,8 @@ class Settings(BaseSettings):
     sandbox_port_min: int = 30000
     sandbox_port_max: int = 40000
     generated_code_root: str = "/tmp/flashapp/tasks"
+    upload_root: str = "/tmp/flashapp/uploads"
+    upload_max_bytes: int = 8 * 1024 * 1024
 
     @property
     def is_development(self) -> bool:
