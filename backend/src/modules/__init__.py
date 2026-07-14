@@ -1,1 +1,1 @@
-"""业务模块包。后续按 auth / tasks / sandbox / models 等子模块拆分。"""
+"""业务模块包。已实现 auth；后续扩展 tasks / sandbox / models 等。"""
