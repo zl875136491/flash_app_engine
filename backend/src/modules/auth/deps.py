@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from src.core.database import is_db_ready
 from src.modules.auth.allowlist import is_allowed_itcode
 from src.modules.auth.jwt import TokenError, decode_access_token
 from src.modules.auth.schemas import CurrentUser
@@ -38,5 +39,12 @@ async def get_current_user(
             detail="用户不在授权名单中",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    if is_db_ready():
+        from src.modules.models import get_user_by_itcode
+
+        user = await get_user_by_itcode(itcode)
+        if user is not None:
+            return CurrentUser(itcode=user.itcode, name=user.name)
 
     return CurrentUser.from_itcode(itcode)

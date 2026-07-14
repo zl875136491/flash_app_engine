@@ -11,14 +11,21 @@ _client: AsyncIOMotorClient | None = None
 _db_ready: bool = False
 
 
+def _default_document_models() -> list:
+    from src.modules.models import DOCUMENT_MODELS
+
+    return list(DOCUMENT_MODELS)
+
+
 async def connect_db(document_models: list | None = None) -> None:
     """初始化 MongoDB 连接与 Beanie ODM。
 
-    document_models 在任务点 3 引入业务模型后再传入；脚手架阶段允许为空列表。
+    默认注册 `src.modules.models.DOCUMENT_MODELS`；也可显式传入覆盖。
     开发环境下连接失败仅记录警告，不阻断进程启动（便于先跑通健康检查）。
     """
     global _client, _db_ready
     settings = get_settings()
+    models = document_models if document_models is not None else _default_document_models()
     try:
         _client = AsyncIOMotorClient(
             settings.mongodb_uri,
@@ -28,10 +35,15 @@ async def connect_db(document_models: list | None = None) -> None:
         await _client.admin.command("ping")
         await init_beanie(
             database=_client[settings.mongodb_db],
-            document_models=document_models or [],
+            document_models=models,
         )
         _db_ready = True
-        logger.info("MongoDB connected: %s / %s", settings.mongodb_uri, settings.mongodb_db)
+        logger.info(
+            "MongoDB connected: %s / %s (models=%s)",
+            settings.mongodb_uri,
+            settings.mongodb_db,
+            [m.__name__ for m in models],
+        )
     except Exception as exc:
         _db_ready = False
         if settings.is_development:
