@@ -5,6 +5,8 @@
 > **最后整理**：2026-07-13  
 > **网络环境**：所有地址均为内网 IP，需在对应 VPN / 局域网内访问。
 
+FlashApp Engine 中这些模型如何接入编排流水线，见 [model_orchestration.md](./model_orchestration.md)。
+
 ---
 
 ## 快速索引
