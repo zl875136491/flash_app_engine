@@ -24,14 +24,25 @@ export function isActiveStage(stage: Stage): boolean {
 }
 
 export function formatTime(iso: string): string {
-  const date = new Date(iso);
+  const normalized = normalizeApiDate(iso);
+  const date = new Date(normalized);
   if (Number.isNaN(date.getTime())) return iso;
   return date.toLocaleString("zh-CN", {
+    timeZone: "Asia/Shanghai",
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
   });
+}
+
+/** 兼容历史无时区后缀的 UTC 字符串，避免被当成本地时间解析。 */
+function normalizeApiDate(iso: string): string {
+  const raw = (iso || "").trim();
+  if (!raw) return raw;
+  if (/[zZ]$|[+-]\d{2}:\d{2}$/.test(raw)) return raw;
+  return `${raw}Z`;
 }
 
 export function taskTitle(raw: string | null | undefined, id: string): string {
