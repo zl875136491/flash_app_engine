@@ -38,30 +38,42 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       VitePWA({
         registerType: "autoUpdate",
-        includeAssets: ["favicon.svg", "apple-touch-icon.png"],
+        includeAssets: [
+          "favicon.svg",
+          "favicon-32.png",
+          "favicon-48.png",
+          "apple-touch-icon.png",
+          "pwa-192.png",
+          "pwa-512.png",
+          "pwa-512-maskable.png",
+        ],
         manifest: {
           name: "FlashApp Engine",
           short_name: "FlashApp",
           description: "口述即部署的内网轻量云计算平台",
-          theme_color: "#5ec992",
+          theme_color: "#247636",
           background_color: "#ffffff",
           display: "standalone",
           orientation: "portrait",
           start_url: "/",
+          scope: "/",
+          id: "/",
           lang: "zh-CN",
           icons: [
             {
-              src: "pwa-192.png",
+              src: "/pwa-192.png?v=20260715",
               sizes: "192x192",
               type: "image/png",
+              purpose: "any",
             },
             {
-              src: "pwa-512.png",
+              src: "/pwa-512.png?v=20260715",
               sizes: "512x512",
               type: "image/png",
+              purpose: "any",
             },
             {
-              src: "pwa-512.png",
+              src: "/pwa-512-maskable.png?v=20260715",
               sizes: "512x512",
               type: "image/png",
               purpose: "maskable",
@@ -70,7 +82,7 @@ export default defineConfig(({ mode }) => {
         },
         workbox: {
           navigateFallback: "/index.html",
-          globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+          globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,webmanifest}"],
         },
         devOptions: {
           enabled: false,

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "@/auth/AuthContext";
+import { InstallHint } from "@/components/shell/InstallHint";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,7 +50,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex h-full flex-col bg-background text-foreground">
+    <div className="relative flex h-full flex-col overflow-hidden bg-background text-foreground">
       <div
         className="pointer-events-none absolute inset-0 opacity-80"
         style={{
@@ -58,12 +59,16 @@ export function LoginPage() {
         }}
       />
 
-      <main className="relative z-10 flex min-h-0 flex-1 flex-col justify-center px-5 pb-10 pt-8">
+      <main className="relative z-10 flex min-h-0 flex-1 flex-col justify-center px-5 pb-28 pt-8">
         <div className="mx-auto w-full max-w-sm space-y-8">
           <div className="space-y-3 text-center">
-            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary text-2xl font-bold text-primary-foreground shadow-sm">
-              F
-            </div>
+            <img
+              src="/pwa-192.png?v=20260715"
+              alt="FlashApp"
+              className="mx-auto size-16 rounded-2xl shadow-sm"
+              width={64}
+              height={64}
+            />
             <h1 className="text-3xl font-semibold tracking-tight">FlashApp</h1>
             <p className="text-sm leading-relaxed text-muted-foreground">
               使用公司 ITCode 登录，口述需求即可部署可分享的内网应用。
@@ -103,6 +108,8 @@ export function LoginPage() {
           </p>
         </div>
       </main>
+
+      <InstallHint />
     </div>
   );
 }
