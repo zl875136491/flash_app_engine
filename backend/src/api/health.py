@@ -1,9 +1,10 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from fastapi import APIRouter
 
 from src.configs import get_settings
 from src.core.database import is_db_ready
+from src.utils.datetime_tz import format_app_iso, utc_now
 
 router = APIRouter(tags=["health"])
 
@@ -17,5 +18,5 @@ async def health_check():
         "service": settings.app_name,
         "env": settings.app_env,
         "mongodb": "connected" if db_ok else "unavailable",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": format_app_iso(utc_now()),
     }

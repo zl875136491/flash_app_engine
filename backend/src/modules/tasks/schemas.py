@@ -5,9 +5,10 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_serializer, field_validator, model_validator
 
 from src.modules.models.enums import AllocatedResources, Container, Stage
+from src.utils.datetime_tz import format_app_iso
 
 
 class CreateTaskRequest(BaseModel):
@@ -47,6 +48,10 @@ class StageLogOut(BaseModel):
     detail: str = ""
     created_at: datetime
 
+    @field_serializer("created_at")
+    def serialize_created_at(self, value: datetime) -> str:
+        return format_app_iso(value)
+
 
 class TaskSummary(BaseModel):
     id: str
@@ -56,6 +61,10 @@ class TaskSummary(BaseModel):
     exposed_url: Optional[str] = None
     created_at: datetime
     updated_at: datetime
+
+    @field_serializer("created_at", "updated_at")
+    def serialize_task_times(self, value: datetime) -> str:
+        return format_app_iso(value)
 
 
 class TaskDetail(TaskSummary):

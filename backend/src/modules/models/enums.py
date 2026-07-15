@@ -2,15 +2,21 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from src.utils.datetime_tz import utc_now
 
-def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+__all__ = [
+    "Stage",
+    "AllocatedResources",
+    "StageLog",
+    "Container",
+    "utc_now",
+]
 
 
 class Stage(str, Enum):
