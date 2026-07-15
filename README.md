@@ -15,7 +15,9 @@
 | 生命周期 | 停止 / 启动 / 移除；失败任务可重试 |
 | PWA | 可安装到主屏幕；登录页提供安装引导气泡 |
 
-产品愿景与早期规约见 [docs/prd.md](docs/prd.md)。内网模型与 HTTPS 说明见 [docs/local_models.md](docs/local_models.md)、[docs/https_ip_setup.md](docs/https_ip_setup.md)。
+产品愿景与早期规约见 [docs/prd.md](docs/prd.md)。  
+模型清单与流水线关联机制（含架构图 / 数据流 / 时序图）见 [docs/model_orchestration.md](docs/model_orchestration.md)。  
+内网模型端点手册与 HTTPS 说明见 [docs/local_models.md](docs/local_models.md)、[docs/https_ip_setup.md](docs/https_ip_setup.md)。
 
 ## 仓库结构
 
